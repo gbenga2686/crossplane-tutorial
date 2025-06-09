@@ -42,7 +42,7 @@ rm -f .env
 # Control Plane Cluster #
 #########################
 
-kind create cluster --config kind.yaml
+# kind create cluster --config kind.yaml
 
 kubectl apply \
     --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
@@ -174,7 +174,7 @@ else
 
     DB_NAME=silly-demo-db-$(date +%Y%m%d%H%M%S)
 
-    echo "---
+cat <<EOF | kubectl apply -f -
 apiVersion: devopstoolkitseries.com/v1alpha1
 kind: ClusterClaim
 metadata:
@@ -183,8 +183,8 @@ spec:
   id: cluster01
   compositionSelector:
     matchLabels:
-      provider: azure
-      cluster: aks
+      provider: aws
+      cluster: eks
   parameters:
     nodeSize: small
     minNodeCount: 3
@@ -204,7 +204,7 @@ spec:
   id: $DB_NAME
   compositionSelector:
     matchLabels:
-      provider: azure
+      provider: aws
       db: postgresql
   parameters:
     version: \"11\"
@@ -228,10 +228,9 @@ spec:
     dbSecret:
       name: silly-demo-db
       namespace: a-team
-    kubernetesProviderConfigName: cluster01" \
-    | tee examples/azure-intro.yaml
-
-fi
+    kubernetesProviderConfigName: cluster01
+    | tee examples/aws-intro.yaml
+  EOF
 
 kubectl create namespace a-team
 
